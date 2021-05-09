@@ -4,28 +4,21 @@ import datetime
 import ccxt
 import pprint
 
-
 access_upbit = "Xyhp80U4xbUkOoSCStKPZS4qsZxdmontflOxuCuv"
 secret_upbit = "e2xSzgw8p78ruXVLCIUGFPbovmwZxxrmDixPqSrY"
 
-
 access_binance = 'P2tMl6D9ecFV6qdWoMj204w9ILbAoCjxvvQgjiShYXi3KND0IEuaBRRGalq04ZeV'
 secret_binance = 'bHESyrqCNgBqDv5uzNe8hzxNJNd1PEXoAlN9EMpBgKoRvk9xIDG3pdECvpby5vdX'
-
 
 binance = ccxt.binance({
     'apiKey': access_binance,
     'secret': secret_binance
 })
 
-
 upbit = pyupbit.Upbit(access_upbit, secret_upbit)
 print("autotrade start")
 
-
-
-
-base_price = 1122.5
+base_price = 1120.5
 
 
 enter_kimp = 0.06
