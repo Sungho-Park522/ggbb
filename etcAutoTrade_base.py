@@ -4,11 +4,11 @@ import datetime
 import ccxt
 import pprint
 
-access_upbit = "Xyhp80U4xbUkOoSCStKPZS4qsZxdmontflOxuCuv"
-secret_upbit = "e2xSzgw8p78ruXVLCIUGFPbovmwZxxrmDixPqSrY"
+access_upbit = ""
+secret_upbit = ""
 
-access_binance = 'P2tMl6D9ecFV6qdWoMj204w9ILbAoCjxvvQgjiShYXi3KND0IEuaBRRGalq04ZeV'
-secret_binance = 'bHESyrqCNgBqDv5uzNe8hzxNJNd1PEXoAlN9EMpBgKoRvk9xIDG3pdECvpby5vdX'
+access_binance = ''
+secret_binance = ''
 
 binance = ccxt.binance({
     'apiKey': access_binance,
