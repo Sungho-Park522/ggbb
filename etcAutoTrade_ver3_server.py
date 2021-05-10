@@ -47,6 +47,7 @@ current_state = 0
 trade_coin = "ETC"
 coin_name_upbit = "KRW-" + trade_coin
 coin_name_binance = trade_coin + "/USDT"
+coin_name_binance_leverage = trade_coin + "USDT"
 
 while True:
     try:
@@ -77,10 +78,14 @@ while True:
             balance_binance = binance.fetch_balance(params={'type': 'future'})
             current_balance_binance = float(balance_binance['USDT']['free'])
             order_number_binance = round(current_balance_binance/price_coin_binance)-10
-            
+            binance.fapiPrivate_post_leverage({
+                "symbol": coin_name_binance_leverage,
+                "leverage": 1,
+                })
             order_info_binance = binance.create_market_sell_order(
             symbol=coin_name_binance, 
             amount=order_number_binance,
+            leverage="1",
             params={'type': 'future'}
             )
             while order_tf_binance :
