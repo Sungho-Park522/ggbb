@@ -1,0 +1,1 @@
+date	enter_kimp	total_seed	end_kimp	profit_upbit	profit_binance	profit_total	ror
