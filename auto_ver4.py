@@ -39,16 +39,18 @@ print("autotrade start")
 
 base_price = 1119
 
+# 건들지 말 것
 enter_kimp = 0
 end_kimp = 0
+changed_end_kimp = 0
 
-enter_kimp_gap_with_btc = 0.015
-end_kimp_gap_with_btc = 0.015
+enter_kimp_gap_with_btc = 0.01
+end_kimp_gap_with_btc = 0.01
 
 current_state = 0
 
 # input coin name that want to trade
-trade_coin = ["DOGE","ETH","EHC", "XRP","EOS","XLM","TRX"]
+trade_coin = ["DOGE","ETH","ETC", "XRP","EOS","XLM","TRX","QTUM"]
 
 current_trading_coin = 0
 
@@ -105,15 +107,15 @@ while True:
         # 거래코인 김프 계산
         while count_coin_number_3 < len(trade_coin) :
             cal_kimp.append((float(price_coin_upbit[count_coin_number_3])-float(price_coin_binance[count_coin_number_3])*base_price)/(float(price_coin_binance[count_coin_number_3])*base_price))
-            print(cal_kimp[count_coin_number_3])
+            print(trade_coin[count_coin_number_3] + " : " + str(round(cal_kimp[count_coin_number_3], 5)*100) + "%")
             count_coin_number_3 = count_coin_number_3 + 1
-            
         
         # 비트코인 김프 계산
         cal_kimp_btc = (price_btc_upbit-price_btc_binance*base_price)/(price_btc_binance*base_price)
-        # print(cal_kimp_btc)
+        print("BTC : " + str(round(cal_kimp_btc,5)*100) + "%")
 
         enter_kimp = cal_kimp_btc - enter_kimp_gap_with_btc
+        # changed_end_kimp = cal_kimp + end_kimp_gap_with_btc
 
         while count_coin_number_4 < len(trade_coin):
             if cal_kimp[count_coin_number_4] <= enter_kimp and current_state==0:
@@ -155,10 +157,50 @@ while True:
                 order_tf_upbit = True
                 end_kimp = cal_kimp_btc + end_kimp_gap_with_btc
                 current_trading_coin = count_coin_number_4
+            
+            elif cal_kimp[count_coin_number_4] <=0.06:
+                balance_binance = binance.fetch_balance(params={'type': 'future'})
+                current_balance_binance = float(balance_binance['USDT']['free'])
+                current_balance_upbit = float(upbit.get_balance(ticker="KRW"))
+                order_number_binance = round((current_balance_binance-0)/float(price_coin_binance[count_coin_number_4]))
+                binance.fapiPrivate_post_leverage({
+                    "symbol": coin_name_binance_leverage[count_coin_number_4],
+                    "leverage": 1,
+                    })
+                order_info_binance = binance.create_market_sell_order(
+                symbol=coin_name_binance[count_coin_number_4], 
+                amount=order_number_binance,
+                params={'type': 'future'}
+                )
+                while order_tf_binance :
+                    if order_info_binance['status']!='open' :
+                        order_tf_binance=False
                 
-            elif cal_kimp[current_trading_coin] >= end_kimp and current_state==1:
+                enter_price_binance = float(order_info_binance['info']['avgPrice'])
+                enter_number_binance = float(order_info_binance['info']['origQty'])
+                order_number_upbit = enter_price_binance * enter_number_binance * base_price
+                
+                upbit.buy_market_order(coin_name_upbit[count_coin_number_4], order_number_upbit)
+                while order_tf_upbit :
+                    enter_number_upbit = upbit.get_balance(ticker=coin_name_upbit[count_coin_number_4])
+                    if enter_number_upbit !=0 :
+                        order_tf_upbit=False
+                        current_state=1
+                print("Enter!")
+                
+                buy_price_total = order_number_upbit * 2
+                real_enter_kimp = round(((order_number_upbit/enter_number_upbit)-(enter_price_binance*base_price))/(enter_price_binance*base_price),2)
+
+                # post_message(myToken,"#kimauto","enter kimp:" + str(float(real_enter_kimp)*100) + "%\nTotal buy price:" + str(buy_price_total) + "KRW")
+
+                order_tf_binance = True
+                order_tf_upbit = True
+                end_kimp = 12
+                current_trading_coin = count_coin_number_4
+                
+            elif cal_kimp[current_trading_coin] >= end_kimp and current_state==1 :
                 binance.create_market_buy_order(
-                    symbol=coin_name_binance[current_trading_coin], 
+                    symbol=coin_name_binance[current_trading_coin],
                     amount=enter_number_binance,
                     params={'type': 'future'}
                     )
